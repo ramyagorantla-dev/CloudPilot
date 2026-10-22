@@ -1,0 +1,27 @@
+
+[
+  {
+    "id": "AWS001",
+    "service": "EC2",
+    "title": "EC2 instance is unreachable",
+    "content": "If an EC2 instance is unreachable, check whether the instance is running, whether its status checks pass, whether the security group allows the required inbound traffic, and whether the network configuration is correct."
+  },
+  {
+    "id": "AWS002",
+    "service": "S3",
+    "title": "S3 access denied",
+    "content": "If an application receives Access Denied when accessing S3, check the IAM permissions, bucket policy, object permissions, and whether the application is using the intended AWS identity."
+  },
+  {
+    "id": "AWS003",
+    "service": "CloudWatch",
+    "title": "Investigating application errors",
+    "content": "When an application fails, inspect its CloudWatch logs for error messages and relevant timestamps. Check available metrics for unusual changes and correlate the logs with the time the problem occurred."
+  },
+  {
+    "id": "AWS004",
+    "service": "HTTP",
+    "title": "HTTP 503 service unavailable",
+    "content": "An HTTP 503 response means the service is temporarily unable to handle the request. Check application health, server capacity, load balancer target health, recent deployments, and relevant application logs."
+  }
+]
