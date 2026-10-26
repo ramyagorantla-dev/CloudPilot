@@ -1,91 +1,153 @@
-# CloudPilot ☁️
+# CloudPilot ☁️ — AI-Powered Cloud Troubleshooting Assistant
 
-### AI-Powered Cloud Troubleshooting Assistant
+CloudPilot is a Retrieval-Augmented Generation (RAG) application that helps users troubleshoot common cloud infrastructure, API, DevOps, and runtime issues. It retrieves relevant troubleshooting knowledge using semantic search and uses Google's Gemini model to generate responses grounded in the retrieved evidence.
 
-CloudPilot is a Python-based cloud troubleshooting assistant that uses semantic search and retrieval-based techniques to identify relevant troubleshooting guidance for common cloud issues.
+**Live Demo:** https://cloudpilot.streamlit.app  
+**GitHub Repository:** https://github.com/ramyagorantla-dev/CloudPilot
 
-## Features
+## Key Features
 
-- **Semantic Search:** Finds relevant troubleshooting information based on the meaning of a user's question.
-- **Evidence-Based Guidance:** Retrieves troubleshooting steps from a structured knowledge base.
-- **Interactive Web Interface:** Provides a simple interface built with Streamlit.
-- **Retrieval Evaluation:** Includes a script to evaluate whether expected troubleshooting records are retrieved.
-- **Automated Tests:** Includes tests for the initial knowledge-base search functionality.
+- **Semantic Search:** Uses Sentence Transformers embeddings to find troubleshooting information relevant to a user's question.
+- **RAG-Based Responses:** Combines knowledge retrieval with Gemini-generated answers grounded in retrieved documentation.
+- **Relevance Filtering:** Filters retrieved entries using a configurable relevance threshold.
+- **Hybrid Retrieval Ranking:** Combines semantic similarity with keyword, service, alias, and error-code signals.
+- **Source-Grounded Guidance:** Presents relevant knowledge-base entries and supporting documentation links.
+- **Out-of-Scope Handling:** Avoids treating unrelated questions as supported troubleshooting requests.
+- **Evaluation Without API Calls:** Includes a retrieval evaluation script that tests search quality without consuming Gemini API quota.
 
 ## Technology Stack
 
-- Python
-- Streamlit
-- Sentence Transformers
-- PyTorch
-- JSON
-- Git and GitHub
+| Component | Technology |
+|---|---|
+| Language | Python |
+| User Interface | Streamlit |
+| Semantic Retrieval | Sentence Transformers |
+| Embedding Model | `sentence-transformers/all-MiniLM-L6-v2` |
+| Generative AI | Google Gemini API |
+| Knowledge Base | JSON |
+| Testing | Python-based retrieval evaluation |
+| Deployment | Streamlit Community Cloud |
 
-## How It Works
+## Architecture
 
-1. The user describes a cloud-related problem.
-2. CloudPilot converts the question into an embedding.
-3. Semantic search compares the question with the knowledge-base records.
-4. Relevant troubleshooting guidance is retrieved.
-5. The web interface displays the results and their similarity scores.
-
-## Run Locally
-
-Clone this repository and navigate into the project folder:
-
-```bash
-git clone https://github.com/ramyagorantla-dev/CloudPilot
-cd CloudPilot
-```
-
-Create and activate a virtual environment, then install the dependencies:
-
-```bash
-python -m venv .venv
-```
-
-On Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-Install the required packages:
-
-```bash
-pip install -r requirements.txt
-```
-
-Start the web application:
-
-```bash
-python -m streamlit run app_web.py
-```
+1. **User Query:** The user submits a troubleshooting question through the Streamlit interface.
+2. **Embedding:** CloudPilot represents the question using a Sentence Transformers embedding model.
+3. **Retrieval and Ranking:** The application ranks knowledge-base entries using semantic similarity and additional relevance signals.
+4. **Relevance Filtering:** Entries below the configured threshold are excluded.
+5. **Answer Generation:** Gemini generates troubleshooting guidance using the retrieved evidence, when the API is available and within quota.
+6. **Results:** The interface presents the response and supporting knowledge-base sources.
 
 ## Evaluation
 
-Run the retrieval evaluation script:
+CloudPilot's retrieval evaluation was run against five test questions:
+
+| Test scenario | Result |
+|---|---|
+| Kubernetes `CrashLoopBackOff` | Pass |
+| Website returning HTTP 503 | Pass |
+| Azure virtual machine RDP connection failure | Pass |
+| Docker container repeatedly restarting | Pass |
+| Unrelated restaurant reservation question | Pass — correctly found no relevant source |
+
+**Retrieval evaluation: 5/5 tests passed.**
+
+These results evaluate retrieval behavior, not the factual accuracy of generated answers or the complete end-to-end RAG pipeline. Gemini answer generation requires a valid API key and available API quota.
+
+Run the retrieval evaluation locally with:
 
 ```bash
-python evaluate_cloudpilot.py
+python evaluate.py
 ```
 
-Run the available automated tests:
+## Knowledge Base
 
-```bash
-python -m pytest -q
-```
+The starter knowledge base covers selected topics across:
 
-## Current Scope and Future Improvements
+- **Cloud infrastructure:** AWS, Microsoft Azure, and Google Cloud
+- **Programming and runtime:** Python, Java, and JavaScript
+- **DevOps:** Kubernetes, Docker, Linux, Git, and CI/CD
+- **Databases and APIs:** SQL, MySQL, and REST APIs
+- **AI applications:** LLM API quotas, RAG retrieval, embeddings, and grounding
 
-The current version uses local embedding models and a small troubleshooting knowledge base. It retrieves existing guidance and presents an evidence-based report; it does not yet use an LLM to generate answers.
+Coverage depends on the entries actually present in the knowledge base. It is a prototype and does not support every platform or error.
 
-Planned improvements include expanding the knowledge base, improving retrieval evaluation, adding optional LLM-based answer generation, and deploying a public demo using a free hosting option where supported.
+## Run Locally
 
-## Cost
+### Prerequisites
 
-The current local workflow does not require paid LLM API calls. Hosting and resource costs will depend on the deployment platform and its current free-tier limits.
+- Python 3.11 or newer recommended
+- Git
+- A Gemini API key for AI-generated answers
 
-## Disclaimer
+### Installation
 
-CloudPilot is an educational project. Always verify troubleshooting recommendations against your organization's policies and official cloud-provider documentation before making infrastructure changes.
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/ramyagorantla-dev/CloudPilot.git
+   cd CloudPilot
+   ```
+
+2. Create and activate a virtual environment.
+
+   **Windows PowerShell:**
+
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
+
+4. Configure your Gemini API key in a local `.env` file:
+
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
+
+   Never commit `.env` or expose your API key publicly.
+
+5. Start the application:
+
+   ```bash
+   python -m streamlit run app_web.py
+   ```
+
+6. Open the local URL displayed in the terminal.
+
+Retrieval can be evaluated without calling Gemini by running `python evaluate.py`. Generating AI answers requires a valid API key and available quota.
+
+## Configuration
+
+CloudPilot supports the following configuration options where implemented:
+
+- `GEMINI_API_KEY` — API key used for Gemini answer generation.
+- `GEMINI_MODEL` — optional Gemini model override.
+- `CLOUDPILOT_SIMILARITY_THRESHOLD` — retrieval relevance threshold; default is `0.30`.
+- `CLOUDPILOT_EMBEDDING_MODEL` — optional embedding model override.
+
+Check the application configuration for the active model default and any additional supported settings.
+
+## Limitations and Responsible Use
+
+- Retrieval scores are ranking signals, not calibrated confidence probabilities.
+- The knowledge base is limited and manually curated.
+- AI-generated answers may be incomplete or incorrect; verify recommendations against current official documentation.
+- CloudPilot does not connect to cloud accounts, inspect live infrastructure, or execute remediation commands.
+- Gemini availability and response generation depend on API quota and service availability.
+
+## Future Improvements
+
+- Expand the troubleshooting knowledge base.
+- Improve retrieval quality with additional test cases and relevance analysis.
+- Evaluate generated answers for factual grounding and correctness.
+- Add more robust error handling and observability.
+- Explore integrations with cloud monitoring and diagnostic tools.
+
+## Project Purpose
+
+CloudPilot is a learning and portfolio project exploring semantic search, Retrieval-Augmented Generation, prompt grounding, and the development of AI-powered troubleshooting applications.
